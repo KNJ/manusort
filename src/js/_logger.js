@@ -9,8 +9,8 @@ manu.api.logger = cloz(manu.base, {
 
 	// 情報取得
 	// 周回index
-	lap: function(index){
-		/* in draft */
+	lap: function(x, y){
+		return x - y -1;
 	},
 	// 終了した試合数（引数がfalseの場合は現在の試合番号）
 	round: function(bool){
@@ -41,6 +41,14 @@ manu.api.logger = cloz(manu.base, {
 		var l = this.get('length');
 		return (l - 1) * l / 2;
 	},
+	// 3次元サイズ
+	volume: function(){
+		var l = this.get('length');
+		return Math.pow(2, l - 1) * (l - 2) + 1;
+	},
+	density: function(x, y){
+		return Math.pow(2, this.get('length') - this.get('lap', x, y) - 2);
+	},
 	cell: function(x, y, v){
 		if (arguments.length < 2) { v = null; }
 		if (v === null) {
@@ -54,6 +62,7 @@ manu.api.logger = cloz(manu.base, {
 		obj.index = this.get('head').get('index');
 		obj.x = this.get('head').get('x');
 		obj.y = this.get('head').get('y');
+		obj.density = this.get('density', obj.x, obj.y);
 
 
 		// drop処理
