@@ -31,18 +31,7 @@ manu.manager = cloz(manu.base, {
 		return this.get('index') / (this.logger.get('space') - 1);
 	},
 	stage: function(){
-		var last_opponent = null, last_self = null;
-		if (this.logger.get('head').get('index') !== 0) {
-			var last_log = this.logger.get('log')[this.logger.get('head').get('index')-1];
-			last_opponent = this.logger.get('elements')[last_log.x];
-			last_self = this.logger.get('elements')[last_log.y];
-		}
-		return {
-			opponent: this.logger.get('opponent'), // 相手
-			self: this.logger.get('self'), // 自分
-			// 相手→自分、または、自分→相手の移動が起こったか
-			change: this.logger.get('self') === last_opponent || this.logger.get('opponent') === last_self,
-		};
+		return this.logger.get('present');
 	},
 	judge: function(outcome, bool){
 		var args = arguments.length;

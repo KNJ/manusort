@@ -253,19 +253,40 @@ manu.api.logger = cloz(manu.base, {
 			return v.type !== 'auto';
 		}).length + (bool ? 0 : 1);
 	},
-	// 自分自身
+	// 相手
+	opponent: function(index){
+		index = index || null;
+		if (index === null) {
+			return this.get('elements')[this.get('head').get('x')];
+		}
+	},
+	// 自分
 	self: function(index){
 		index = index || null;
 		if (index === null) {
 			return this.get('elements')[this.get('head').get('y')];
 		}
 	},
-	// 対戦者
-	opponent: function(index){
-		index = index || null;
-		if (index === null) {
-			return this.get('elements')[this.get('head').get('x')];
+	// 現在のステージ
+	present: function(){
+		var last_opponent = null, last_self = null;
+		if (this.get('head').get('index') !== 0) {
+			var last = this.get('last');
+			last_opponent = this.get('elements')[last.x];
+			last_self = this.get('elements')[last.y];
 		}
+		return {
+			opponent: this.get('opponent'), // 相手
+			self: this.get('self'), // 自分
+			// 相手→自分、または、自分→相手の移動が起こり、かつ直前で入れ替わっていなければtrue
+			change: (this.get('self') === last_opponent || this.get('opponent') === last_self) && this.get('last').change === false,
+		};
+	},
+	// 直前のstageのログ（autoを含めない）
+	last: function(){
+		return this.get('log').filter(function(v){
+			return v.type !== 'auto';
+		}).pop();
 	},
 	// 1次元サイズ
 	length: function(){
@@ -298,6 +319,7 @@ manu.api.logger = cloz(manu.base, {
 		obj.x = this.get('head').get('x');
 		obj.y = this.get('head').get('y');
 		obj.density = this.get('density', obj.x, obj.y);
+		obj.change = this.get('present').change;
 
 
 		// drop処理
@@ -411,18 +433,7 @@ manu.manager = cloz(manu.base, {
 		return this.get('index') / (this.logger.get('space') - 1);
 	},
 	stage: function(){
-		var last_opponent = null, last_self = null;
-		if (this.logger.get('head').get('index') !== 0) {
-			var last_log = this.logger.get('log')[this.logger.get('head').get('index')-1];
-			last_opponent = this.logger.get('elements')[last_log.x];
-			last_self = this.logger.get('elements')[last_log.y];
-		}
-		return {
-			opponent: this.logger.get('opponent'), // 相手
-			self: this.logger.get('self'), // 自分
-			// 相手→自分、または、自分→相手の移動が起こったか
-			change: this.logger.get('self') === last_opponent || this.logger.get('opponent') === last_self,
-		};
+		return this.logger.get('present');
 	},
 	judge: function(outcome, bool){
 		var args = arguments.length;

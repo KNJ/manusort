@@ -18,19 +18,40 @@ manu.api.logger = cloz(manu.base, {
 			return v.type !== 'auto';
 		}).length + (bool ? 0 : 1);
 	},
-	// 自分自身
+	// 相手
+	opponent: function(index){
+		index = index || null;
+		if (index === null) {
+			return this.get('elements')[this.get('head').get('x')];
+		}
+	},
+	// 自分
 	self: function(index){
 		index = index || null;
 		if (index === null) {
 			return this.get('elements')[this.get('head').get('y')];
 		}
 	},
-	// 対戦者
-	opponent: function(index){
-		index = index || null;
-		if (index === null) {
-			return this.get('elements')[this.get('head').get('x')];
+	// 現在のステージ
+	present: function(){
+		var last_opponent = null, last_self = null;
+		if (this.get('head').get('index') !== 0) {
+			var last = this.get('last');
+			last_opponent = this.get('elements')[last.x];
+			last_self = this.get('elements')[last.y];
 		}
+		return {
+			opponent: this.get('opponent'), // 相手
+			self: this.get('self'), // 自分
+			// 相手→自分、または、自分→相手の移動が起こり、かつ直前で入れ替わっていなければtrue
+			change: (this.get('self') === last_opponent || this.get('opponent') === last_self) && this.get('last').change === false,
+		};
+	},
+	// 直前のstageのログ（autoを含めない）
+	last: function(){
+		return this.get('log').filter(function(v){
+			return v.type !== 'auto';
+		}).pop();
 	},
 	// 1次元サイズ
 	length: function(){
@@ -63,6 +84,7 @@ manu.api.logger = cloz(manu.base, {
 		obj.x = this.get('head').get('x');
 		obj.y = this.get('head').get('y');
 		obj.density = this.get('density', obj.x, obj.y);
+		obj.change = this.get('present').change;
 
 
 		// drop処理
