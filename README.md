@@ -162,7 +162,7 @@ ms.get('stage');
     self: {
         id: 101,
         name: "天海春香",
-        dropped: 0,
+        dropped: 0
     },
     change: false
 }
